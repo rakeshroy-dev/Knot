@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Knot & Thread Tales</title>
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Quicksand', sans-serif; background-color: #fef8f5; color: #333; }
+    header {
+      text-align: center;
+      background: linear-gradient(135deg, #fddede, #fad2d2);
+      padding: 1rem;
+    }
+    header img {
+      max-width: 160px;
+      margin-bottom: 0.5rem;
+    }
+    header h1 { font-size: 2rem; color: #9b3f4f; }
+    nav {
+      background-color: #fff0f0;
+      padding: 0.8rem 1rem;
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+    nav button {
+      background-color: #d94f5d;
+      border: none;
+      padding: 0.5rem 1rem;
+      color: white;
+      font-weight: 600;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    nav button:hover { background-color: #b03a4e; }
+    .container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1.5rem;
+      padding: 2rem;
+    }
+    .card {
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      transition: transform 0.3s ease;
+    }
+    .card:hover { transform: translateY(-5px); }
+    .card img {
+      width: 100%;
+      height: 220px;
+      object-fit: cover;
+      border-radius: 10px 10px 0 0;
+    }
+    .card-content {
+      padding: 1rem;
+    }
+    .card-content h3 { font-size: 1.1rem; margin-bottom: 0.5rem; color: #b03a4e; }
+    .card-content p { font-size: 0.9rem; margin-bottom: 0.4rem; }
+    .card-content strong { color: #333; }
+    footer {
+      background-color: #fbb1bd;
+      color: white;
+      text-align: center;
+      padding: 1rem;
+      font-size: 0.9rem;
+    }
+    @media (max-width: 600px) {
+      header h1 { font-size: 1.6rem; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <img src="./assets/logo.png" alt="Knot & Thread Tales logo">
+    <h1>Knot & Thread Tales</h1>
+  </header>
+
+  <nav id="category-nav"></nav>
+
+  <main class="container" id="product-container"></main>
+
+  <footer>&copy; 2025 Knot & Thread Tales | Crafted with passion 🧵</footer>
+
+  <script>
+    async function init() {
+    const categoryNav = document.getElementById('category-nav');
+    const container = document.getElementById('product-container');
+
+    const categoryRes = await fetch('https://api.npoint.io/9dc46ce2c4483a2cd9a6');
+    const categoryMaster = await categoryRes.json();
+
+    categoryMaster.forEach(cat => {
+      const btn = document.createElement('button');
+      btn.textContent = cat.name;
+      btn.onclick = () => loadProducts(cat.id);
+      categoryNav.appendChild(btn);
+    });
+
+    async function loadProducts(categoryId) {
+      container.innerHTML = '<p>Loading...</p>';
+      const res = await fetch('https://api.npoint.io/38e4bc2945becfa14822');
+      const all_products = await res.json();
+      const products = all_products.filter(item => item.category === categoryId);
+      container.innerHTML = '';
+      products.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `
+          <img src="${item.image}" alt="${item.title}" />
+          <div class="card-content">
+            <h3>✨ ${item.title}</h3>
+            <p>${item.description}</p>
+            <p><strong>₹${item.price}</strong></p>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    // Auto-load first category
+    loadProducts(categoryMaster[0]?.id || 'kidswear');
+  }
+
+  init();
+  </script>
+</body>
+</html>
